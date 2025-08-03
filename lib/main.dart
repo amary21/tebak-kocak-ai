@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tebak_kocak_ai/presentation/page/home/home_page.dart';
-import 'package:tebak_kocak_ai/presentation/page/quiz_form/quiz_form_page.dart';
-import 'package:tebak_kocak_ai/presentation/page/quiz_select/quiz_select_page.dart';
-import 'package:tebak_kocak_ai/presentation/page/quiz_take/quiz_take_page.dart';
-import 'package:tebak_kocak_ai/presentation/page/quiz_upload/quiz_upload_page.dart';
-import 'package:tebak_kocak_ai/presentation/page/splash/splash_page.dart';
+import 'package:tebak_kocak_ai/router.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,11 +53,11 @@ class MyApp extends StatelessWidget {
       ),
     );
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Flutter Demo',
       theme: lightTheme,
       darkTheme: darkTheme,
-      home: const QuizFormPage(),
+      routerConfig: router,
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tebak_kocak_ai/presentation/page/quiz_take/quiz_take_page.dart';
-import 'package:tebak_kocak_ai/presentation/page/quiz_upload/quiz_upload_page.dart';
+import 'package:go_router/go_router.dart';
 
 class QuizSelectPage extends StatelessWidget {
   const QuizSelectPage({super.key});
@@ -29,11 +28,7 @@ class QuizSelectPage extends StatelessWidget {
               const SizedBox(height: 48),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const QuizUploadPage(),
-                    ),
-                  );
+                  context.push('/quiz-upload');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -56,11 +51,7 @@ class QuizSelectPage extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const QuizTakePage(),
-                    ),
-                  );
+                  context.push('/quiz-take');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: buttonSecondaryBackground,

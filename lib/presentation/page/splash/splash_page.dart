@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-class SplashPage extends StatelessWidget {
+class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
+
+  @override
+  State<SplashPage> createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Navigate to quiz select page after 2 seconds
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        context.go('/quiz-select');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

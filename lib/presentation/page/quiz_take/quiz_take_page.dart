@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tebak_kocak_ai/presentation/page/quiz_form/quiz_form_page.dart';
+import 'package:go_router/go_router.dart';
 
 class QuizTakePage extends StatefulWidget {
   const QuizTakePage({super.key});
@@ -46,11 +46,7 @@ class _QuizTakePageState extends State<QuizTakePage> {
 
     if (isValid) {
       // Navigate to quiz form page
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const QuizFormPage(),
-        ),
-      );
+      context.push('/quiz-form');
     }
   }
 
@@ -71,7 +67,7 @@ class _QuizTakePageState extends State<QuizTakePage> {
         shadowColor: Colors.black.withOpacity(0.1),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.go('/quiz-select'),
         ),
         title: const Text(
           'Ikuti Kuis',

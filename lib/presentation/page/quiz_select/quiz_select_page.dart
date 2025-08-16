@@ -10,7 +10,7 @@ class QuizSelectPage extends StatelessWidget {
     const buttonSecondaryBackground = Color(0xFFE9ECEF);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),

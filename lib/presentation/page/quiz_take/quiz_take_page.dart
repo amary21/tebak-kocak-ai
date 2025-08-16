@@ -54,8 +54,8 @@ class _QuizTakePageState extends State<QuizTakePage> {
   Widget build(BuildContext context) {
     // Define colors from the HTML design
     final primaryColor = Theme.of(context).colorScheme.primary; // #FFDF12
-    final backgroundColor = Theme.of(context).colorScheme.background; // #FFFFFF
-    final textPrimary = Theme.of(context).colorScheme.onBackground; // #1F2937
+    final backgroundColor = Theme.of(context).colorScheme.surface; // #FFFFFF
+    final textPrimary = Theme.of(context).colorScheme.onSurface; // #1F2937
     final textSecondary = const Color(0xFF6B7280); // #6B7280
 
     return Scaffold(

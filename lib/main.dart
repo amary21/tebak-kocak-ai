@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tebak_kocak_ai/router.dart';
+import 'core/providers/providers.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const primaryYellow = Color(0xFFFFDF12);
     const onPrimaryColor = Colors.black;
 
@@ -49,11 +51,24 @@ class MyApp extends StatelessWidget {
       ),
     );
 
-    return MaterialApp.router(
-      title: 'Flutter Demo',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      routerConfig: router,
-    );
+    // Initialize Supabase
+    return ref
+        .watch(supabaseInitProvider)
+        .when(
+          data: (_) => MaterialApp.router(
+            title: 'Flutter Demo',
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            routerConfig: router,
+          ),
+          loading: () => const MaterialApp(
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
+          ),
+          error: (error, stack) => MaterialApp(
+            home: Scaffold(
+              body: Center(child: Text('Error initializing app: $error')),
+            ),
+          ),
+        );
   }
 }

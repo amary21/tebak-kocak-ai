@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class QuizUploadPage extends StatefulWidget {
   const QuizUploadPage({super.key});
@@ -9,17 +12,70 @@ class QuizUploadPage extends StatefulWidget {
 
 class _QuizUploadPageState extends State<QuizUploadPage> {
   // Track uploaded images
-  final List<String> _uploadedImages = [];
+  final List<File> _uploadedImages = [];
   final int _maxImages = 10;
+  final ImagePicker _picker = ImagePicker();
 
-  void _selectImages() {
-    // This would use image_picker in a real implementation
-    // For now, just simulate adding an image
-    if (_uploadedImages.length < _maxImages) {
-      setState(() {
-        _uploadedImages.add('placeholder');
-      });
+  Future<void> _selectImages() async {
+    try {
+      // Calculate how many more images can be selected
+      final remainingSlots = _maxImages - _uploadedImages.length;
+
+      if (remainingSlots <= 0) {
+        _showSnackBar('Maksimal $_maxImages gambar sudah tercapai');
+        return;
+      }
+
+      // Pick multiple images from gallery
+      final List<XFile> pickedFiles = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+
+      if (pickedFiles.isNotEmpty) {
+        // Limit the selection to remaining slots
+        final filesToAdd = pickedFiles.take(remainingSlots).toList();
+
+        // Convert XFile to File and add to list
+        final List<File> newImages = filesToAdd
+            .map((xFile) => File(xFile.path))
+            .toList();
+
+        setState(() {
+          _uploadedImages.addAll(newImages);
+        });
+
+        // Show feedback to user
+        final addedCount = newImages.length;
+        final totalCount = _uploadedImages.length;
+
+        if (pickedFiles.length > remainingSlots) {
+          _showSnackBar(
+            '$addedCount gambar ditambahkan. Maksimal $_maxImages gambar.',
+          );
+        } else {
+          _showSnackBar(
+            '$addedCount gambar berhasil ditambahkan ($totalCount/$_maxImages)',
+          );
+        }
+      }
+    } catch (e) {
+      _showSnackBar('Gagal memilih gambar: ${e.toString()}');
     }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _uploadedImages.removeAt(index);
+    });
+    _showSnackBar('Gambar dihapus (${_uploadedImages.length}/$_maxImages)');
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
   }
 
   @override
@@ -37,16 +93,14 @@ class _QuizUploadPageState extends State<QuizUploadPage> {
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 1,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           'Buat Kuis',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -59,18 +113,13 @@ class _QuizUploadPageState extends State<QuizUploadPage> {
               // Title and description
               const Text(
                 'Unggah Gambar Anda',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               const Text(
                 'Unggah 10 gambar untuk membuat kuis yang kocak. AI kami akan menganalisis gambar dan menghasilkan pertanyaan yang menghibur.',
-                style: TextStyle(
-                  color: Color(0xFF6B7280),
-                ),
+                style: TextStyle(color: Color(0xFF6B7280)),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -116,15 +165,14 @@ class _QuizUploadPageState extends State<QuizUploadPage> {
                     const SizedBox(height: 4),
                     const Text(
                       'Klik untuk menulusuri dari perangkat Anda',
-                      style: TextStyle(
-                        color: Color(0xFF6B7280),
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Color(0xFF6B7280), fontSize: 14),
                     ),
                     const SizedBox(height: 16),
                     // Upload button
                     ElevatedButton(
-                      onPressed: _selectImages,
+                      onPressed: _uploadedImages.length < _maxImages
+                          ? _selectImages
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: textPrimary,
@@ -138,18 +186,17 @@ class _QuizUploadPageState extends State<QuizUploadPage> {
                           vertical: 12,
                         ),
                       ),
-                      child: const Text(
-                        'Pilih Gambar untuk Diunggah',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      child: Text(
+                        _uploadedImages.length < _maxImages
+                            ? 'Pilih Gambar (${_uploadedImages.length}/$_maxImages)'
+                            : 'Maksimal $_maxImages Gambar Tercapai',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'Anda telah mengunggah ${_uploadedImages.length} dari $_maxImages gambar.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: textSecondary,
-                      ),
+                      style: TextStyle(fontSize: 12, color: textSecondary),
                     ),
                   ],
                 ),
@@ -163,10 +210,7 @@ class _QuizUploadPageState extends State<QuizUploadPage> {
                 children: [
                   const Text(
                     'Pratinjau',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 16),
                   // Grid of images
@@ -198,18 +242,63 @@ class _QuizUploadPageState extends State<QuizUploadPage> {
                             decoration: BoxDecoration(
                               color: accentColor,
                               borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 1,
+                              ),
                             ),
-                            child: Center(
-                              child: hasImage
-                                  ? const Icon(Icons.image) // Placeholder for actual image
-                                  : index == 0 && _uploadedImages.isEmpty
-                                      ? Icon(
-                                          Icons.photo_size_select_actual_outlined,
-                                          color: Colors.grey.shade400,
-                                          size: 24,
-                                        )
-                                      : null,
-                            ),
+                            child: hasImage
+                                ? Stack(
+                                    children: [
+                                      // Display actual image
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.file(
+                                          _uploadedImages[index],
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      // Remove button
+                                      Positioned(
+                                        top: 4,
+                                        right: 4,
+                                        child: GestureDetector(
+                                          onTap: () => _removeImage(index),
+                                          child: Container(
+                                            width: 24,
+                                            height: 24,
+                                            decoration: BoxDecoration(
+                                              color: Colors.red.withValues(
+                                                alpha: 0.8,
+                                              ),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Center(
+                                    child: index == 0 && _uploadedImages.isEmpty
+                                        ? Icon(
+                                            Icons
+                                                .photo_size_select_actual_outlined,
+                                            color: Colors.grey.shade400,
+                                            size: 24,
+                                          )
+                                        : Icon(
+                                            Icons.add_photo_alternate_outlined,
+                                            color: Colors.grey.shade300,
+                                            size: 20,
+                                          ),
+                                  ),
                           );
                         },
                       );
@@ -229,7 +318,7 @@ class _QuizUploadPageState extends State<QuizUploadPage> {
           color: backgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 6,
               offset: const Offset(0, -2),
             ),
@@ -248,10 +337,7 @@ class _QuizUploadPageState extends State<QuizUploadPage> {
           ),
           child: const Text(
             'Buat Kuis',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
       ),

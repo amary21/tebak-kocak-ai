@@ -48,6 +48,12 @@ dependencies:
   equatable: ^2.0.5
   dartz: ^0.10.1
 
+  # Permission
+  permission_handler: ^11.3.1
+
+  # Image Picker
+  image_picker: ^1.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
